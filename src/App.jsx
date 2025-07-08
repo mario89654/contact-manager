@@ -1,9 +1,8 @@
 /* 
 import { useState } from "react";
 import ContactCard from "./components/ContactCard";
-import Copyrights from "./components/Copyrights";
 import ContactList from "./components/ContactList";
-
+import Copyrights from "./components/Copyrights";
 
 export default function App() {
   const [contacts, setContacts] = useState([
@@ -33,7 +32,8 @@ export default function App() {
     setShowFavoritesOnly((prev) => !prev);
   };
 
-  const toggleContactVisibility = (id) => {
+  const toggleContactVisibility = (id, name) => {
+    alert(`Seleccionaste: ${name}`);
     setVisibleContactIds((prev) =>
       prev.includes(id) ? prev.filter((cid) => cid !== id) : [...prev, id]
     );
@@ -43,24 +43,21 @@ export default function App() {
     const filtered = contacts.filter((c) =>
       showFavoritesOnly ? c.isFavorite : true
     );
-
-    const invisible = filtered.find((c) => !visibleContactIds.includes(c.id));
-    if (invisible) {
-      setVisibleContactIds([...visibleContactIds, invisible.id]);
-      alert(`Seleccionaste: ${invisible.name}`);
-    } else {
-      alert("No hay más contactos para mostrar.");
+    const hidden = filtered.filter((c) => !visibleContactIds.includes(c.id));
+    if (hidden.length > 0) {
+      setVisibleContactIds((prev) => [...prev, hidden[0].id]);
     }
   };
 
   const handleFirstFavorite = () => {
     const firstFavorite = contacts.find((c) => c.isFavorite);
-    if (firstFavorite) {
-      setVisibleContactIds([firstFavorite.id]);
-      alert(`Seleccionaste: ${firstFavorite.name}`);
-    } else {
-      alert("No hay contactos favoritos.");
+    if (firstFavorite && !visibleContactIds.includes(firstFavorite.id)) {
+      setVisibleContactIds((prev) => [...prev, firstFavorite.id]);
     }
+  };
+
+  const markAllAsFavorite = () => {
+    setContacts((prev) => prev.map((c) => ({ ...c, isFavorite: true })));
   };
 
   const filteredContacts = contacts.filter((c) =>
@@ -70,6 +67,8 @@ export default function App() {
   const visibleContacts = filteredContacts.filter((c) =>
     visibleContactIds.includes(c.id)
   );
+
+  const hasFavorites = contacts.some((c) => c.isFavorite);
 
   return (
     <>
@@ -103,10 +102,7 @@ export default function App() {
                   borderRadius: "6px",
                   cursor: "pointer",
                 }}
-                onClick={() => {
-                  toggleContactVisibility(contact.id);
-                  alert(`Seleccionaste: ${contact.name}`);
-                }}
+                onClick={() => toggleContactVisibility(contact.id, contact.name)}
               >
                 Contact {contact.id} {contact.isFavorite ? "⭐️" : "☆"}
               </button>
@@ -148,7 +144,7 @@ export default function App() {
             <button
               onClick={handleFirstFavorite}
               style={{
-                background: "#2ecc71", 
+                background: "#2ecc71",
                 color: "black",
                 padding: "6px 12px",
                 border: "none",
@@ -162,36 +158,22 @@ export default function App() {
             </button>
           </div>
 
-          {showFavoritesOnly && filteredContacts.length === 0 && (
-            <p style={{ marginTop: "10px", color: "#f1c40f" }}>
-              ⚠️ No hay favoritos.
-            </p>
-          )}
-
           <p style={{ marginTop: "10px" }}>
             Mostrando {visibleContacts.length} de {contacts.length} contactos
           </p>
+
+          {!hasFavorites && (
+            <p style={{ color: "#888", marginTop: "10px" }}>⚠️ No hay favoritos</p>
+          )}
         </main>
       </header>
 
-      <div
-        className="contact-container"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
-          gap: "24px",
-          marginTop: "20px",
-          padding: "0 24px",
-        }}
-      >
-        {visibleContacts.map((contact) => (
-          <ContactCard
-            key={contact.id}
-            {...contact}
-            onToggleFavorite={toggleFavorite}
-          />
-        ))}
-      </div>
+      <ContactList
+        contacts={visibleContacts}
+        onToggleFavorite={toggleFavorite}
+        onMarkAllAsFavorite={markAllAsFavorite}
+        total={contacts.length}
+      />
 
       <hr />
 
@@ -238,7 +220,8 @@ export default function App() {
     setShowFavoritesOnly((prev) => !prev);
   };
 
-  const toggleContactVisibility = (id) => {
+  const toggleContactVisibility = (id, name) => {
+    alert(`Seleccionaste: ${name}`);
     setVisibleContactIds((prev) =>
       prev.includes(id) ? prev.filter((cid) => cid !== id) : [...prev, id]
     );
@@ -265,6 +248,16 @@ export default function App() {
     setContacts((prev) => prev.map((c) => ({ ...c, isFavorite: true })));
   };
 
+  const clearContact = (id) => {
+    const confirmed = window.confirm("¿Estás seguro de que deseas limpiar este contacto?");
+    if (!confirmed) return;
+    setContacts((prev) =>
+      prev.map((c) =>
+        c.id === id ? { ...c, name: "", phone: "", email: "", isFavorite: false } : c
+      )
+    );
+  };
+
   const filteredContacts = contacts.filter((c) =>
     showFavoritesOnly ? c.isFavorite : true
   );
@@ -272,6 +265,8 @@ export default function App() {
   const visibleContacts = filteredContacts.filter((c) =>
     visibleContactIds.includes(c.id)
   );
+
+  const hasFavorites = contacts.some((c) => c.isFavorite);
 
   return (
     <>
@@ -305,7 +300,7 @@ export default function App() {
                   borderRadius: "6px",
                   cursor: "pointer",
                 }}
-                onClick={() => toggleContactVisibility(contact.id)}
+                onClick={() => toggleContactVisibility(contact.id, contact.name)}
               >
                 Contact {contact.id} {contact.isFavorite ? "⭐️" : "☆"}
               </button>
@@ -364,14 +359,19 @@ export default function App() {
           <p style={{ marginTop: "10px" }}>
             Mostrando {visibleContacts.length} de {contacts.length} contactos
           </p>
+
+          {!hasFavorites && (
+            <p style={{ color: "#888", marginTop: "10px" }}>⚠️ No hay favoritos</p>
+          )}
         </main>
       </header>
 
-      {/* ✅ Nuevo componente con total y botón extra */}
       <ContactList
         contacts={visibleContacts}
         onToggleFavorite={toggleFavorite}
         onMarkAllAsFavorite={markAllAsFavorite}
+        onClearContact={clearContact}
+        total={contacts.length}
       />
 
       <hr />
