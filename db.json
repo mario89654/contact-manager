@@ -1,0 +1,16 @@
+{
+  "contacts": [
+    {
+      "id": 1,
+      "name": "Mario Wells",
+      "phone": "939814802",
+      "isFavorite": true
+    },
+    {
+      "id": 2,
+      "name": "Ana Torres",
+      "phone": "987654321",
+      "isFavorite": false
+    }
+  ]
+}

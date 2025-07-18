@@ -36,3 +36,52 @@
   background-color: #e74c3c;
   color: #000;
 }
+
+/* <section style={{ marginTop: "20px" }}>
+  <h2>📡 Contactos desde el backend</h2>
+
+  <button onClick={loadContactsFromAPI} disabled={isLoading}>
+    {isLoading ? "Cargando..." : "🔄 Cargar contactos"}
+  </button>
+
+  {error && (
+    <p style={{ color: "red" }}>
+      ❌ Error: {error} <button onClick={loadContactsFromAPI}>Reintentar</button>
+    </p>
+  )}
+
+  {apiContacts.map((contact) => (
+    <div
+      key={contact.id}
+      onClick={() => setSelectedContact(contact)}
+      style={{
+        border: "1px solid #ccc",
+        padding: "10px",
+        borderRadius: "8px",
+        marginTop: "10px",
+        background: "#f8f8f8",
+        cursor: "pointer",
+      }}
+    >
+      <strong>{contact.name}</strong> {contact.isFavorite && "⭐"}
+      <p>{contact.phone}</p>
+    </div>
+  ))}
+
+  {selectedContact && (
+    <div
+      style={{
+        marginTop: "20px",
+        padding: "12px",
+        border: "1px solid #aaa",
+        borderRadius: "8px",
+        background: "#f0f0f0",
+      }}
+    >
+      <h3>👤 Detalles del contacto</h3>
+      <p><strong>Nombre:</strong> {selectedContact.name}</p>
+      <p><strong>Teléfono:</strong> {selectedContact.phone}</p>
+      {selectedContact.email && <p><strong>Email:</strong> {selectedContact.email}</p>}
+    </div>
+  )}
+</section> */

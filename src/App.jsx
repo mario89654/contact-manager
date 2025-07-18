@@ -1,6 +1,7 @@
 
 // Importar hooks y componentes necesarios
-import { useState } from "react";
+import {useEffect, useState } from "react";
+import { fetchContacts } from "./services/contactService";
 import ContactCard from "./components/ContactCard";
 import ContactList from "./components/ContactList";
 import ContactForm from "./components/ContactForm";
@@ -16,6 +17,40 @@ export default function App() {
     { id: 5, name: "Mary", phone: "55-8673", email: "mary@gmail.com", isFavorite: false },
   ]);
 
+
+
+// ...agregar o cerrar lista de carga...
+// export default App;
+ function App() {
+  const [myContacts, setMyContacts] = useState([]);
+
+  // Función para agregar un contacto a tu lista personal
+  const handleAddContact = (contact) => {
+    setMyContacts((prev) => [...prev, contact]);
+  };
+
+  // Función para seleccionar un contacto (ejemplo)
+  const handleContactSelect = (contact) => {
+    // Aquí puedes mostrar detalles, etc.
+    alert(`Seleccionaste a ${contact.name}`);
+  };
+
+  return (
+    <>
+      {/* ...otros componentes... */}
+      <ContactList
+        onContactSelect={handleContactSelect}
+        onAddContact={handleAddContact}
+      />
+      {/* ...otros componentes... */}
+    </>
+  );
+}
+
+
+
+
+
   // Mostrar solo favoritos o todos
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   // Lista de IDs visibles
@@ -24,6 +59,28 @@ export default function App() {
   const [phoneInput, setPhoneInput] = useState("");
   // Mensaje temporal (éxito o advertencia)
   const [notification, setNotification] = useState("");
+
+  const [apiContacts, setApiContacts] = useState([]);
+const [selectedContact, setSelectedContact] = useState(null);
+const [isLoading, setIsLoading] = useState(false);
+const [error, setError] = useState(null);
+
+const loadContactsFromAPI = async () => {
+  setIsLoading(true);
+  setError(null);
+  try {
+    const data = await fetchContacts();
+    setApiContacts(data);
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+
+
+
 
   // 👉 Alternar favorito individual
   const toggleFavorite = (id) => {
@@ -131,6 +188,10 @@ export default function App() {
   // 📍 Saber si hay algún contacto favorito
   const hasFavorites = contacts.some((c) => c.isFavorite);
 
+  useEffect(() => {
+  loadContactsFromAPI(); // o puedes dejarlo solo bajo demanda
+}, []);
+
   return (
     <>
       <header>
@@ -185,7 +246,7 @@ export default function App() {
                 }}
                 onClick={() => toggleContactVisibility(contact.id, contact.name)}
               >
-                Contact {contact.id} {contact.isFavorite ? "⭐️" : "☆"}
+                  {contact.name} {contact.isFavorite ? "⭐️" : "☆"} 
               </button>
             ))}
           </div>
